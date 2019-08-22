@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-// import java.util.stream.Collectors;
 
 import static io.confluent.connect.elasticsearch.DataConverter.BehaviorOnNullValues;
 import static io.confluent.connect.elasticsearch.bulk.BulkProcessor.BehaviorOnMalformedDoc;
@@ -248,7 +247,6 @@ public class ElasticsearchWriter {
         continue;
       }
 
-      // Set
       final Set<String> indices = convertTopicToIndexName(sinkRecord.topic());
       final boolean ignoreKey = ignoreKeyTopics.contains(sinkRecord.topic()) || this.ignoreKey;
       final boolean ignoreSchema =

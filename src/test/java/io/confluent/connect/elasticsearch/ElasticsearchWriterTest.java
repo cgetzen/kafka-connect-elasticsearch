@@ -276,8 +276,7 @@ public class ElasticsearchWriterTest extends ElasticsearchSinkTestBase {
 
     Collection<?> expectedRecords =
         Collections.singletonList(new ObjectMapper().writeValueAsString(map));
-    Set<String> topics = new HashSet<String>();
-    topics.add(TOPIC);
+    Set<String> topics = new HashSet<String>(Arrays.asList(TOPIC));
     verifySearchResults(expectedRecords, topics);
   }
 
