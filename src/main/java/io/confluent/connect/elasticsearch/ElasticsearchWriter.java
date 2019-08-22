@@ -44,7 +44,7 @@ public class ElasticsearchWriter {
   private final boolean ignoreSchema;
   private final Set<String> ignoreSchemaTopics;
   @Deprecated
-  private final Map<String, Set<String>> topicToIndexMap;
+  private final Map<String, Set<String>> topicToIndicesMap;
   private final long flushTimeoutMs;
   private final BulkProcessor<IndexableRecord, ?> bulkProcessor;
   private final boolean dropInvalidMessage;
@@ -62,7 +62,7 @@ public class ElasticsearchWriter {
       Set<String> ignoreKeyTopics,
       boolean ignoreSchema,
       Set<String> ignoreSchemaTopics,
-      Map<String, Set<String>> topicToIndexMap,
+      Map<String, Set<String>> topicToIndicesMap,
       long flushTimeoutMs,
       int maxBufferedRecords,
       int maxInFlightRequests,
@@ -80,7 +80,7 @@ public class ElasticsearchWriter {
     this.ignoreKeyTopics = ignoreKeyTopics;
     this.ignoreSchema = ignoreSchema;
     this.ignoreSchemaTopics = ignoreSchemaTopics;
-    this.topicToIndexMap = topicToIndexMap;
+    this.topicToIndicesMap = topicToIndicesMap;
     this.flushTimeoutMs = flushTimeoutMs;
     this.dropInvalidMessage = dropInvalidMessage;
     this.behaviorOnNullValues = behaviorOnNullValues;
@@ -110,7 +110,7 @@ public class ElasticsearchWriter {
     private Set<String> ignoreKeyTopics = Collections.emptySet();
     private boolean ignoreSchema = false;
     private Set<String> ignoreSchemaTopics = Collections.emptySet();
-    private Map<String, Set<String>> topicToIndexMap = new HashMap<>();
+    private Map<String, Set<String>> topicToIndicesMap = new HashMap<>();
     private long flushTimeoutMs;
     private int maxBufferedRecords;
     private int maxInFlightRequests;
@@ -148,8 +148,8 @@ public class ElasticsearchWriter {
       return this;
     }
 
-    public Builder setTopicToIndexMap(Map<String, Set<String>> topicToIndexMap) {
-      this.topicToIndexMap = topicToIndexMap;
+    public Builder setTopicToIndicesMap(Map<String, Set<String>> topicToIndicesMap) {
+      this.topicToIndicesMap = topicToIndicesMap;
       return this;
     }
 
@@ -219,7 +219,7 @@ public class ElasticsearchWriter {
           ignoreKeyTopics,
           ignoreSchema,
           ignoreSchemaTopics,
-          topicToIndexMap,
+          topicToIndicesMap,
           flushTimeoutMs,
           maxBufferedRecords,
           maxInFlightRequests,
@@ -247,7 +247,7 @@ public class ElasticsearchWriter {
         continue;
       }
 
-      final Set<String> indices = convertTopicToIndexName(sinkRecord.topic());
+      final Set<String> indices = convertTopicToIndexNames(sinkRecord.topic());
       final boolean ignoreKey = ignoreKeyTopics.contains(sinkRecord.topic()) || this.ignoreKey;
       final boolean ignoreSchema =
           ignoreSchemaTopics.contains(sinkRecord.topic()) || this.ignoreSchema;
@@ -310,12 +310,12 @@ public class ElasticsearchWriter {
   }
 
   /**
-   * Return the expected index name for a given topic, using the configured mapping or the topic
+   * Return the expected indices' names for a given topic, using the configured mapping or the topic
    * name. Elasticsearch accepts only lowercase index names
    * (<a href="https://github.com/elastic/elasticsearch/issues/29420">ref</a>_.
    */
-  private Set<String> convertTopicToIndexName(String topic) {
-    Set<String> indexOverride = topicToIndexMap.get(topic);
+  private Set<String> convertTopicToIndexNames(String topic) {
+    Set<String> indexOverride = topicToIndicesMap.get(topic);
     if (indexOverride == null) {
       indexOverride = new HashSet<String>();
       indexOverride.add(topic.toLowerCase());
@@ -350,7 +350,7 @@ public class ElasticsearchWriter {
   private Set<String> indicesForTopics(Set<String> assignedTopics) {
     final Set<String> indices = new HashSet<>();
     for (String topic : assignedTopics) {
-      for (String index : convertTopicToIndexName(topic)) {
+      for (String index : convertTopicToIndexNames(topic)) {
         indices.add(index);
       }
     }

@@ -502,7 +502,7 @@ public class ElasticsearchWriterTest extends ElasticsearchSinkTestBase {
       ElasticsearchClient client,
       Set<String> ignoreKeyTopics,
       Set<String> ignoreSchemaTopics,
-      Map<String, Set<String>> topicToIndexMap,
+      Map<String, Set<String>> topicToIndicesMap,
       boolean dropInvalidMessage,
       BehaviorOnNullValues behavior
   ) {
@@ -510,7 +510,7 @@ public class ElasticsearchWriterTest extends ElasticsearchSinkTestBase {
         .setType(TYPE)
         .setIgnoreKey(ignoreKey, ignoreKeyTopics)
         .setIgnoreSchema(ignoreSchema, ignoreSchemaTopics)
-        .setTopicToIndexMap(topicToIndexMap)
+        .setTopicToIndicesMap(topicToIndicesMap)
         .setFlushTimoutMs(10000)
         .setMaxBufferedRecords(10000)
         .setMaxInFlightRequests(1)
