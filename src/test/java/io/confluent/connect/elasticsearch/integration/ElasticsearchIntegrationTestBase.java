@@ -27,9 +27,7 @@ import io.confluent.connect.elasticsearch.jest.JestElasticsearchClient;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
@@ -158,7 +156,6 @@ public class ElasticsearchIntegrationTestBase {
         assertEquals(record, hits.get("key"));
       }
     }
-    // }
   }
 
   static String getElasticsearchContainerVersion() {

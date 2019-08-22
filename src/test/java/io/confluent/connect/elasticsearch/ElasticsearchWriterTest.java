@@ -107,8 +107,7 @@ public class ElasticsearchWriterTest extends ElasticsearchSinkTestBase {
     ignoreKey = true;
     ignoreSchema = true;
 
-    Set<String> indexOverride = new HashSet<String>();
-    indexOverride.add("index");
+    Set<String> indexOverride = new HashSet<String>(Arrays.asList("index1", "index2"));
 
     Collection<SinkRecord> records = prepareData(2);
     ElasticsearchWriter writer = initWriter(
@@ -540,8 +539,9 @@ public class ElasticsearchWriterTest extends ElasticsearchSinkTestBase {
     verifySearchResults(records, ignoreKey, ignoreSchema);
   }
 
-  private void verifySearchResults(Collection<?> records, Set<String> index) throws Exception {
-    String _index = index.iterator().next();
-    verifySearchResults(records, _index, ignoreKey, ignoreSchema);
+  private void verifySearchResults(Collection<?> records, Set<String> indices) throws Exception {
+    for (String index : indices) {
+      verifySearchResults(records, index, ignoreKey, ignoreSchema);
+    }
   }
 }
