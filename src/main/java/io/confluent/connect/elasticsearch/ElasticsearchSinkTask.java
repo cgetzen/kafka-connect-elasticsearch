@@ -67,7 +67,7 @@ public class ElasticsearchSinkTask extends SinkTask {
           config.getBoolean(ElasticsearchSinkConnectorConfig.COMPACT_MAP_ENTRIES_CONFIG);
 
 
-      Map<String, String> topicToIndexMap =
+      Map<String, Set<String>> topicToIndexMap =
           parseMapConfig(config.getList(ElasticsearchSinkConnectorConfig.TOPIC_INDEX_MAP_CONFIG));
       Set<String> topicIgnoreKey =
           new HashSet<>(config.getList(ElasticsearchSinkConnectorConfig.TOPIC_KEY_IGNORE_CONFIG));
@@ -191,13 +191,18 @@ public class ElasticsearchSinkTask extends SinkTask {
     }
   }
 
-  private Map<String, String> parseMapConfig(List<String> values) {
-    Map<String, String> map = new HashMap<>();
+  private Map<String, Set<String>> parseMapConfig(List<String> values) {
+    Map<String, Set<String>> map = new HashMap<>();
     for (String value : values) {
       String[] parts = value.split(":");
       String topic = parts[0];
       String type = parts[1];
-      map.put(topic, type);
+      Set<Integer> set = map.get(topic);
+      if (set == null) {
+          set = new HashSet<Integer>();
+          map.put(topic, set);
+      }
+      set.add(type);
     }
     return map;
   }
