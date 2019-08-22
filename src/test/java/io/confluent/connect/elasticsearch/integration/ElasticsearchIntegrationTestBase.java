@@ -27,7 +27,9 @@ import io.confluent.connect.elasticsearch.jest.JestElasticsearchClient;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
@@ -130,11 +132,14 @@ public class ElasticsearchIntegrationTestBase {
   }
 
   protected void verifySearchResults(Collection<SinkRecord> records, boolean ignoreKey, boolean ignoreSchema) throws IOException {
-    verifySearchResults(records, TOPIC, ignoreKey, ignoreSchema);
+    Set<String> topics = new HashSet<String>();
+    topics.add(TOPIC);
+    verifySearchResults(records, topics, ignoreKey, ignoreSchema);
   }
 
-  protected void verifySearchResults(Collection<?> records, String index, boolean ignoreKey, boolean ignoreSchema) throws IOException {
-    final JsonObject result = client.search("", index, null);
+  protected void verifySearchResults(Collection<?> records, Set<String> index, boolean ignoreKey, boolean ignoreSchema) throws IOException {
+    String _index = index.iterator().next();
+    final JsonObject result = client.search("", _index, null);
 
     final JsonArray rawHits = result.getAsJsonObject("hits").getAsJsonArray("hits");
 
@@ -150,7 +155,7 @@ public class ElasticsearchIntegrationTestBase {
 
     for (Object record : records) {
       if (record instanceof SinkRecord) {
-        IndexableRecord indexableRecord = converter.convertRecord((SinkRecord) record, index, TYPE, ignoreKey, ignoreSchema);
+        IndexableRecord indexableRecord = converter.convertRecord((SinkRecord) record, _index, TYPE, ignoreKey, ignoreSchema);
         assertEquals(indexableRecord.payload, hits.get(indexableRecord.key.id));
       } else {
         assertEquals(record, hits.get("key"));

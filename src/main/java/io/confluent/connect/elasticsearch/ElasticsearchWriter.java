@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors;
 
 import static io.confluent.connect.elasticsearch.DataConverter.BehaviorOnNullValues;
 import static io.confluent.connect.elasticsearch.bulk.BulkProcessor.BehaviorOnMalformedDoc;
@@ -255,22 +255,22 @@ public class ElasticsearchWriter {
           ignoreSchemaTopics.contains(sinkRecord.topic()) || this.ignoreSchema;
 
       for (String index : indices) {
-      client.createIndices(Collections.singleton(index));
+        client.createIndices(Collections.singleton(index));
 
-      if (!ignoreSchema && !existingMappings.contains(index)) {
-        try {
-          if (Mapping.getMapping(client, index, type) == null) {
-            Mapping.createMapping(client, index, type, sinkRecord.valueSchema());
+        if (!ignoreSchema && !existingMappings.contains(index)) {
+          try {
+            if (Mapping.getMapping(client, index, type) == null) {
+              Mapping.createMapping(client, index, type, sinkRecord.valueSchema());
+            }
+          } catch (IOException e) {
+            // FIXME: concurrent tasks could attempt to create the mapping and one of the requests
+            // may fail
+            throw new ConnectException("Failed to initialize mapping for index: " + index, e);
           }
-        } catch (IOException e) {
-          // FIXME: concurrent tasks could attempt to create the mapping and one of the requests may
-          // fail
-          throw new ConnectException("Failed to initialize mapping for index: " + index, e);
+          existingMappings.add(index);
         }
-        existingMappings.add(index);
-      }
 
-      tryWriteRecord(sinkRecord, index, ignoreKey, ignoreSchema);
+        tryWriteRecord(sinkRecord, index, ignoreKey, ignoreSchema);
       }
     }
   }
@@ -317,12 +317,12 @@ public class ElasticsearchWriter {
    * (<a href="https://github.com/elastic/elasticsearch/issues/29420">ref</a>_.
    */
   private Set<String> convertTopicToIndexName(String topic) {
-    final Set<String> indexOverride = topicToIndexMap.get(topic);
+    Set<String> indexOverride = topicToIndexMap.get(topic);
     if (indexOverride == null) {
-      Set<String> indexOverride = new HashSet<String>();
+      indexOverride = new HashSet<String>();
       indexOverride.add(topic.toLowerCase());
     }
-    log.debug("Topic '{}' was translated as index '{}'", topic, index);
+    log.debug("Topic '{}' was translated as index '{}'", topic, indexOverride);
     return indexOverride;
   }
 
@@ -352,7 +352,7 @@ public class ElasticsearchWriter {
   private Set<String> indicesForTopics(Set<String> assignedTopics) {
     final Set<String> indices = new HashSet<>();
     for (String topic : assignedTopics) {
-      for(String index : convertTopicToIndexName(topic)) {
+      for (String index : convertTopicToIndexName(topic)) {
         indices.add(index);
       }
     }

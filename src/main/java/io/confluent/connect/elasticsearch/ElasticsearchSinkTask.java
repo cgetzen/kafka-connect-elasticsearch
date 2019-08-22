@@ -197,10 +197,10 @@ public class ElasticsearchSinkTask extends SinkTask {
       String[] parts = value.split(":");
       String topic = parts[0];
       String type = parts[1];
-      Set<Integer> set = map.get(topic);
+      Set<String> set = map.get(topic);
       if (set == null) {
-          set = new HashSet<Integer>();
-          map.put(topic, set);
+        set = new HashSet<String>();
+        map.put(topic, set);
       }
       set.add(type);
     }
