@@ -315,13 +315,13 @@ public class ElasticsearchWriter {
    * (<a href="https://github.com/elastic/elasticsearch/issues/29420">ref</a>_.
    */
   private Set<String> convertTopicToIndexNames(String topic) {
-    Set<String> indexOverride = topicToIndicesMap.get(topic);
-    if (indexOverride == null) {
-      indexOverride = new HashSet<String>();
-      indexOverride.add(topic.toLowerCase());
+    Set<String> indices = topicToIndicesMap.get(topic);
+    if (indices == null) {
+      indices = new HashSet<String>();
+      indices.add(topic.toLowerCase());
     }
-    log.debug("Topic '{}' was translated as index '{}'", topic, indexOverride);
-    return indexOverride;
+    log.debug("Topic '{}' was translated as index '{}'", topic, indices);
+    return indices;
   }
 
   public void flush() {
