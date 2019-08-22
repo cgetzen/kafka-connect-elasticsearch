@@ -132,14 +132,11 @@ public class ElasticsearchIntegrationTestBase {
   }
 
   protected void verifySearchResults(Collection<SinkRecord> records, boolean ignoreKey, boolean ignoreSchema) throws IOException {
-    Set<String> topics = new HashSet<String>();
-    topics.add(TOPIC);
-    verifySearchResults(records, topics, ignoreKey, ignoreSchema);
+    verifySearchResults(records, TOPIC, ignoreKey, ignoreSchema);
   }
 
-  protected void verifySearchResults(Collection<?> records, Set<String> index, boolean ignoreKey, boolean ignoreSchema) throws IOException {
-    String _index = index.iterator().next();
-    final JsonObject result = client.search("", _index, null);
+  protected void verifySearchResults(Collection<?> records, String index, boolean ignoreKey, boolean ignoreSchema) throws IOException {
+    final JsonObject result = client.search("", index, null);
 
     final JsonArray rawHits = result.getAsJsonObject("hits").getAsJsonArray("hits");
 
@@ -155,12 +152,13 @@ public class ElasticsearchIntegrationTestBase {
 
     for (Object record : records) {
       if (record instanceof SinkRecord) {
-        IndexableRecord indexableRecord = converter.convertRecord((SinkRecord) record, _index, TYPE, ignoreKey, ignoreSchema);
+        IndexableRecord indexableRecord = converter.convertRecord((SinkRecord) record, index, TYPE, ignoreKey, ignoreSchema);
         assertEquals(indexableRecord.payload, hits.get(indexableRecord.key.id));
       } else {
         assertEquals(record, hits.get("key"));
       }
     }
+    // }
   }
 
   static String getElasticsearchContainerVersion() {
