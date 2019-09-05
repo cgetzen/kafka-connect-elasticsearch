@@ -88,6 +88,9 @@ public class ElasticsearchSinkConnectorConfig extends AbstractConfig {
   public static final String TYPE_NAME_CONFIG = "type.name";
   private static final String TYPE_NAME_DOC = "The Elasticsearch type name to use when indexing.";
 
+  public static final String TYPE_INDEX_CONFIG = "type.index";
+  private static final String TYPE_INDEX_DOC = "Whether to use the index as the type name.";
+
   @Deprecated
   public static final String TOPIC_INDEX_MAP_CONFIG = "topic.index.map";
   private static final String TOPIC_INDEX_MAP_DOC =
@@ -364,6 +367,16 @@ public class ElasticsearchSinkConnectorConfig extends AbstractConfig {
         ++order,
         Width.SHORT,
         "Type Name"
+    ).define(
+        TYPE_INDEX_CONFIG,
+        Type.BOOLEAN,
+        false,
+        Importance.HIGH,
+        TYPE_INDEX_DOC,
+        group,
+        ++order,
+        Width.SHORT,
+        "Kafka index is the Elastic doc type"
     ).define(
         KEY_IGNORE_CONFIG,
         Type.BOOLEAN,

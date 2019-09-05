@@ -39,6 +39,7 @@ public class ElasticsearchWriter {
 
   private final ElasticsearchClient client;
   private final String type;
+  private final boolean typeIndex;
   private final boolean ignoreKey;
   private final Set<String> ignoreKeyTopics;
   private final boolean ignoreSchema;
@@ -57,6 +58,7 @@ public class ElasticsearchWriter {
   ElasticsearchWriter(
       ElasticsearchClient client,
       String type,
+      boolean typeIndex,
       boolean useCompactMapEntries,
       boolean ignoreKey,
       Set<String> ignoreKeyTopics,
@@ -76,6 +78,7 @@ public class ElasticsearchWriter {
   ) {
     this.client = client;
     this.type = type;
+    this.typeIndex = typeIndex;
     this.ignoreKey = ignoreKey;
     this.ignoreKeyTopics = ignoreKeyTopics;
     this.ignoreSchema = ignoreSchema;
@@ -105,6 +108,7 @@ public class ElasticsearchWriter {
   public static class Builder {
     private final ElasticsearchClient client;
     private String type;
+    private boolean typeIndex;
     private boolean useCompactMapEntries = true;
     private boolean ignoreKey = false;
     private Set<String> ignoreKeyTopics = Collections.emptySet();
@@ -128,6 +132,11 @@ public class ElasticsearchWriter {
 
     public Builder setType(String type) {
       this.type = type;
+      return this;
+    }
+
+    public Builder setTypeIndex(boolean typeIndex) {
+      this.typeIndex = typeIndex;
       return this;
     }
 
@@ -214,6 +223,7 @@ public class ElasticsearchWriter {
       return new ElasticsearchWriter(
           client,
           type,
+          typeIndex,
           useCompactMapEntries,
           ignoreKey,
           ignoreKeyTopics,
@@ -255,9 +265,10 @@ public class ElasticsearchWriter {
       client.createIndices(Collections.singleton(index));
 
       if (!ignoreSchema && !existingMappings.contains(index)) {
+        final String _type = typeIndex ? index : type;
         try {
-          if (Mapping.getMapping(client, index, type) == null) {
-            Mapping.createMapping(client, index, type, sinkRecord.valueSchema());
+          if (Mapping.getMapping(client, index, _type) == null) {
+            Mapping.createMapping(client, index, _type, sinkRecord.valueSchema());
           }
         } catch (IOException e) {
           // FIXME: concurrent tasks could attempt to create the mapping and one of the requests may
@@ -282,10 +293,11 @@ public class ElasticsearchWriter {
       boolean ignoreSchema) {
 
     try {
+      final String _type = typeIndex ? index : type;
       IndexableRecord record = converter.convertRecord(
           sinkRecord,
           index,
-          type,
+          _type,
           ignoreKey,
           ignoreSchema);
       if (record != null) {
